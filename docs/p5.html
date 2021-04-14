@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Part 5: Shaders</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Home</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="p1.html">Part 1</a></li>
+							<li><a href="p2.html">Part 2</a></li>
+							<li><a href="p3.html">Part 3</a></li>
+							<li><a href="p4.html">Part 4</a></li>
+							<li class="active"><a href="p5.html">Part 5</a></li>
+<!--							<li><a href="index.html">This is Massively</a></li>-->
+<!--							<li class="active"><a href="p2.html">Generic Page</a></li>-->
+<!--							<li><a href="elements.html">Elements Reference</a></li>-->
+						</ul>
+<!--						<ul class="icons">-->
+<!--							<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>-->
+<!--						</ul>-->
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 13, 2021</span>
+									<h2>Shaders</h2>
+									<!-- <p>Make that cloth dance in the spring! (haha very pun, much fun)</p> -->
+									<!-- <video autoplay loop muted controls playsinline width="75%">
+										<source src="proj_img/Meshedit.webm" type="video/webm">
+										<source src="images/p2/demo.mp4" type="video/mp4">
+										Your browser doesn't support mp4 videos :(
+									</video> -->
+								</header>
+			
+								<p>In this part, we implemented a few GLSL shader programs. Shaders are realistic lighting programs that run parallel in the GPU instead of in the CPU. It executes sections of the graphics pipeline by taking in inputs and outputting 4 dimensional vectors. As a result, shaders accelerate rendering of lighting and material effects that would take a long time on the CPU.</p>
+								<p>GLSL shader programs are composed of two things: vertex shaders and fragment shaders. Vertex shaders apply transforms to vertices and writes to variables used in the fragment shader. Fragment shaders process fragments that are created after rasterization and write out a color for the fragment.</p>
+
+								<p>In our first task, we implemented diffused shading by calculating the <b>out_color</b> using the diffused shading equation shown in the spec and lecture (using a <b>diffuse coefficient of 1.0</b>). Then, we implemented Blinn-Phong shading, which incorporates diffused shading from our first part. The Blinn-Phong model is a lighting model that not only accounts for diffused shading but also ambient lighting and specular reflection to give us a better model of lighting on an object. The use of all three components leads to the following equation for Blinn-Phong:</p>
+								
+								<div align="middle">
+									<img src="./images/p5/blinn_eq.png" align="middle" width="500px"/>
+								</div>
+								<br>
+
+								<p>For our Blinn-Phong calculations, we used the follwing constant values:</p>
+								<pre align="middle" style="font-size: 15px">ka = 0.1, kd = 1.0, ks = 0.6, p = 80</pre>
+
+								<div class="image main">
+									<p>Ambient component of Blinn-Phong:</p>
+									<img src="images/p5/phong_ambient.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Diffuse component of Blinn-Phong:</p>
+									<img src="images/p5/phong_diffuse.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Specular component of Blinn-Phong:</p>
+									<img src="images/p5/phong_specular.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Complete Blinn-Phong lighting:</p>
+									<img src="images/p5/phong.png" alt=""/>
+								</div>
+
+								<p>We also implemented texture mapping as a part our shader implementation. This was done by sampling from a texture at the texture space coordinate uv. We can see an example below with a custom texture mapped to the cloth draped over a sphere.</p>
+
+								<div class="image main">
+									<p>Texture mapping shader:</p>
+									<img src="images/p5/texture.png" alt=""/>
+								</div>
+
+								<p>Next, we implemented bump and displacement mapping so that our shader has the ability to produce details on an object. For bump mapping, we modified the fragment shader by adjusting the normals of the object so that we can give off the illusions of bumps through shadows. This was done by calculating our new normals in object space and then converting our calculations into model space by using the <b>tangent-bitangent-normal (TBN) matrix</b>. The local space normal (converted to object space using TBN) and values for the local normal were calculated using:</p>
+
+								<div align="middle">
+									<img src="./images/p5/normal_eq.png" align="middle" width="180px"/>
+								</div>
+								<div align="middle">
+									<img src="./images/p5/bump_eq.png" align="middle" width="400px"/>
+								</div>
+								<br>
+
+								<p>Meanwhile, displacement mapping was implemented by modifying the vertex shader as well as the fragment shader. In the vertex shader, the positions of the object's vertices were adjusted by physically displacing them in the direction of the original model space vertex normal scaled by the <b>u_height_scaling</b> variable. This was implemented by using the following equation:</p>
+
+								<div align="middle">
+									<img src="./images/p5/disp_eq.png" align="middle" width="230px"/>
+								</div>
+								<br>
+
+								<p>When changing the sphere mesh's coarseness from 16 to 128, we see some very subtle differences in the outputs of the shader. We can see that the sphere in the 128 coarsness image is more jagged for displacement, which leads to more displacement and jaggedness on the cloth. We also see that there are more prominent details in the 128 coarse bump renders as compared to the 16 coarse bump renders.</p>
+
+
+								<div class="image main">
+									<p>The height was set at 0.03 while the normal was set to 100 for all of the images generated below.</p>
+									<p>Bump coarsness 16 on sphere:</p>
+									<img src="images/p5/sphere_bump16.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Bump coarsness 16 on cloth:</p>
+									<img src="images/p5/bump_o16_a16.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Displacement coarsness 16 on sphere:</p>
+									<img src="images/p5/sphere_displacement16.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Displacement coarsness 16 on cloth:</p>
+									<img src="images/p5/displacement_o16_a16.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Bump coarsness 128 on sphere:</p>
+									<img src="images/p5/sphere_bump128.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Bump coarsness 128 on cloth:</p>
+									<img src="images/p5/bump_o128_a128.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Displacement coarsness 128 on sphere:</p>
+									<img src="images/p5/sphere_displacement128.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Displacement coarsness 128 on cloth:</p>
+									<img src="images/p5/displacement_o128_a128.png" alt=""/>
+								</div>
+
+
+								<br>
+								<p>Finally, we implemented a mirror shader that can simulate reflective surfaces on our cloth and sphere as shown below. To implement this, we computed the eye-ray, reflected it across the surface normal to get the incoming ray, and sampled the environment map for the incoming direction.</p>
+
+								<div class="image main">
+									<p>Mirror shader on pinned cloth:</p>
+									<img src="images/p5/mirror_pinned.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Mirror shader on cloth above sphere:</p>
+									<img src="images/p5/mirror_cloth.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Mirror shader on sphere:</p>
+									<img src="images/p5/mirror_sphere.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Mirror shader on cloth draped over sphere:</p>
+									<img src="images/p5/mirror_draped.png" alt=""/>
+								</div>
+
+							</section>
+					</div>
+
+<!--				&lt;!&ndash; Footer &ndash;&gt;-->
+<!--					<footer id="footer">-->
+<!--						<section>-->
+<!--							<form method="post" action="#">-->
+<!--								<div class="fields">-->
+<!--									<div class="field">-->
+<!--										<label for="name">Name</label>-->
+<!--										<input type="text" name="name" id="name" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="email">Email</label>-->
+<!--										<input type="text" name="email" id="email" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="message">Message</label>-->
+<!--										<textarea name="message" id="message" rows="3"></textarea>-->
+<!--									</div>-->
+<!--								</div>-->
+<!--								<ul class="actions">-->
+<!--									<li><input type="submit" value="Send Message" /></li>-->
+<!--								</ul>-->
+<!--							</form>-->
+<!--						</section>-->
+<!--						<section class="split contact">-->
+<!--							<section class="alt">-->
+<!--								<h3>Address</h3>-->
+<!--								<p>1234 Somewhere Road #87257<br />-->
+<!--								Nashville, TN 00000-0000</p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Phone</h3>-->
+<!--								<p><a href="#">(000) 000-0000</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Email</h3>-->
+<!--								<p><a href="#">info@untitled.tld</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Social</h3>-->
+<!--								<ul class="icons alt">-->
+<!--									<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>-->
+<!--								</ul>-->
+<!--							</section>-->
+<!--						</section>-->
+<!--					</footer>-->
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; 2021 Diddly Doofer. All Laughs Reserved.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

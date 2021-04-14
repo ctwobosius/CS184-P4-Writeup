@@ -1,0 +1,326 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Generic Page - Massively by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Home</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="p1.html">Part 1</a></li>
+							<li class="active"><a href="p2.html">Part 2</a></li>
+							<li><a href="p3.html">Part 3</a></li>
+							<li><a href="p4.html">Part 4</a></li>
+							<li><a href="p5.html">Part 5</a></li>
+<!--							<li><a href="index.html">This is Massively</a></li>-->
+<!--							<li class="active"><a href="p2.html">Generic Page</a></li>-->
+<!--							<li><a href="elements.html">Elements Reference</a></li>-->
+						</ul>
+<!--						<ul class="icons">-->
+<!--							<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>-->
+<!--						</ul>-->
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 13, 2021</span>
+									<h2>Simulation Via
+									Numerical (Verlet) Integration</h2>
+									<p>Make that cloth dance in the spring! (haha very pun, much fun)</p>
+									<video autoplay loop muted controls playsinline width="75%">
+<!--										<source src="proj_img/Meshedit.webm" type="video/webm">-->
+										<source src="images/p2/demo.mp4" type="video/mp4">
+										Your browser doesn't support mp4 videos :(
+									</video>
+								</header>
+
+								<p>For this part, we simulate cloth movement.
+									First, we sum all forces acting on each point mass. This is achieved using physics, such as
+									Newton's famous F=ma, along with Hooke's law (for springs):
+									</p>
+								<img src="images/p2/hooke.png" alt="" style="width:30%"/>
+								<p>
+									where ks is a spring constant, where larger values simulate "stiffer" springs (return to rest faster),
+									p_a and p_b are the positions of masses attached to the springs, and l is the spring's rest length.
+								</p>
+								<p>
+									Then, we use Verlet integration to compute a point mass's position at each timestep of the simulation
+									according to the forces applied to each mass. Mathematically, this is
+									</p>
+								<img src="images/p2/verlet_int.png" alt="" style="width:50%"/>
+								<p>where t+dt is the next time step, d is a damping constant (more means more damping/less movement), t-dt is the previous
+								time step, a_t is acceleration (calculated using F=ma), and dt is the time step.</p>
+								<p>
+									To prevent springs from becoming unreasonably deformed, we also add constraints to each spring so that its length is at most 10%
+									greater than its rest_length at the end of any time step.
+									We make sure that the spring's direction is preserved, for our implementation.
+									After implementing this part, we can now simulate our sheet of cloth.
+								</p>
+
+								<p>Here are various ks values (N/m):</p>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+										<tr>
+											<th>ks</th>
+											<th>Image</th>
+											<th>Difference</th>
+
+										</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>1</td>
+												<td>
+													<img class="table_img" src="images/p2/ks_1.png" alt="" style="width:100%"/>
+												</td>
+												<td>
+													Cloth is less "stiff" and as a result there are barely any wrinkles, since it just falls straight
+													down without much constraints.
+												</td>
+											</tr>
+
+											<tr>
+												<td>5,000</td>
+												<td>
+													<img class="table_img" src="images/p2/default.png" alt="" style="width:100%" />
+												</td>
+												<td>
+													Default, looks pretty natural, with some folding and wrinkles.
+												</td>
+											</tr>
+
+											<tr>
+												<td>100,000</td>
+												<td>
+													<img class="table_img" src="images/p2/ks_100000.png" alt="" style="width:100%"/>
+												</td>
+												<td>
+													Cloth is very "stiff" and thus it doesn't go as far from its starting position.
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<p>Here are various density values (g/cm^2):</p>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+										<tr>
+											<th>ks</th>
+											<th>Image</th>
+											<th>Difference</th>
+
+										</tr>
+										</thead>
+										<tbody>
+
+										<tr>
+											<td>1</td>
+											<td>
+												<img class="table_img" src="images/p2/dens_1.png" alt="" style="width:100%"/>
+											</td>
+											<td>
+												Cloth is not "weighed down" as much, so there's barely a curve at the top,
+												with it just slightly deforming.
+											</td>
+										</tr>
+
+										<tr>
+											<td>15</td>
+											<td>
+												<img class="table_img"src="images/p2/default.png" alt="" style="width:100%" />
+											</td>
+											<td>
+												Default, looks pretty natural, with some folding and wrinkles.
+											</td>
+										</tr>
+
+
+										<tr>
+											<td>1,000</td>
+											<td>
+												<img class="table_img" src="images/p2/dens_1000.png" alt="" style="width:100%"/>
+											</td>
+											<td>
+												Cloth is "weighed down" much more, so the curve at the top is much more pronounced,
+												with the wrinkles being smaller since the weight pulls it down and "stretches" it.
+											</td>
+										</tr>
+
+										<tr>
+											<td>100,000</td>
+											<td>
+												<img class="table_img" src="images/p2/dens_100000.png" alt="" style="width:100%"/>
+											</td>
+											<td>
+												Cloth is "weighed down" so much that it looks flat, all the wrinkles are practically gone
+												because of the sheer weight of the cloth, lol.
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<p>Here are various damping values (%):</p>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+										<tr>
+											<th>ks</th>
+											<th>Image</th>
+											<th>Difference</th>
+
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>1.15</td>
+											<td>
+												<img class="table_img" src="images/p2/damp_1_1494.png" alt="" style="width:100%"/>
+											</td>
+											<td>
+												Cloth's movements aren't as restricted, so it flutters. A lot. Like a butterfly,
+												the slightest movement causes it to go fly away, back and forth, since the "frictional effect"
+												of larger damping constants are more or less absent.
+											</td>
+										</tr>
+
+										<tr>
+											<td>20</td>
+											<td>
+												<img class="table_img" src="images/p2/default.png" alt="" style="width:100%" />
+											</td>
+											<td>
+												Default, looks pretty natural, with some folding and wrinkles.
+											</td>
+										</tr>
+
+										<tr>
+											<td>100</td>
+											<td>
+												<img class="table_img" src="images/p2/damp_100.png" alt="" style="width:100%"/>
+											</td>
+											<td>
+												Cloth is pretty damped, so it falls very very slowly, and in general, is hard to move.
+												However, it looks the same as default after it settles (which should also be the case
+												once the 1.15% one decides to settle down like a good boi), since this only really affects
+												how it moves, rather than its "convergence" state.
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<p>Pinned_4 was rendered using the model's normals and the default parameters (all spring types enabled, density: 15 g/cm^2,
+									ks: 5000 N/m, damping: 0.2%, gravity vector: (0, -9.8, 0) m/s^2)</p>
+								<div class="image main">
+									<p>Here is pinned_4's top view:</p>
+									<img src="images/p2/pinned_4_top.png" alt="" style="width:100%"/>
+								</div>
+								<div class="image main">
+									<p>Here is pinned_4's bottom view:</p>
+									<img src="images/p2/pinned_4_bottom.png" alt="" style="width:100%"/>
+								</div>
+								<div class="image main">
+									<p>Here is pinned_4's side view:</p>
+									<img src="images/p2/pinned_4_side.png" alt="" style="width:100%"/>
+								</div>
+
+							</section>
+					</div>
+
+<!--				&lt;!&ndash; Footer &ndash;&gt;-->
+<!--					<footer id="footer">-->
+<!--						<section>-->
+<!--							<form method="post" action="#">-->
+<!--								<div class="fields">-->
+<!--									<div class="field">-->
+<!--										<label for="name">Name</label>-->
+<!--										<input type="text" name="name" id="name" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="email">Email</label>-->
+<!--										<input type="text" name="email" id="email" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="message">Message</label>-->
+<!--										<textarea name="message" id="message" rows="3"></textarea>-->
+<!--									</div>-->
+<!--								</div>-->
+<!--								<ul class="actions">-->
+<!--									<li><input type="submit" value="Send Message" /></li>-->
+<!--								</ul>-->
+<!--							</form>-->
+<!--						</section>-->
+<!--						<section class="split contact">-->
+<!--							<section class="alt">-->
+<!--								<h3>Address</h3>-->
+<!--								<p>1234 Somewhere Road #87257<br />-->
+<!--								Nashville, TN 00000-0000</p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Phone</h3>-->
+<!--								<p><a href="#">(000) 000-0000</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Email</h3>-->
+<!--								<p><a href="#">info@untitled.tld</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Social</h3>-->
+<!--								<ul class="icons alt">-->
+<!--									<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>-->
+<!--								</ul>-->
+<!--							</section>-->
+<!--						</section>-->
+<!--					</footer>-->
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; 2021 Diddly Doofer. All Laughs Reserved.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

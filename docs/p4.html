@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Part 4: Self-Collisions</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Home</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="p1.html">Part 1</a></li>
+							<li><a href="p2.html">Part 2</a></li>
+							<li><a href="p3.html">Part 3</a></li>
+							<li class="active"><a href="p4.html">Part 4</a></li>
+							<li><a href="p5.html">Part 5</a></li>
+<!--							<li><a href="index.html">This is Massively</a></li>-->
+<!--							<li class="active"><a href="p2.html">Generic Page</a></li>-->
+<!--							<li><a href="elements.html">Elements Reference</a></li>-->
+						</ul>
+<!--						<ul class="icons">-->
+<!--							<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>-->
+<!--						</ul>-->
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 13, 2021</span>
+									<h2>Self-Collisions</h2>
+									<!-- <p>Make that cloth dance in the spring! (haha very pun, much fun)</p> -->
+									<!-- <video autoplay loop muted controls playsinline width="75%">
+										<source src="proj_img/Meshedit.webm" type="video/webm">
+										<source src="images/p2/demo.mp4" type="video/mp4">
+										Your browser doesn't support mp4 videos :(
+									</video> -->
+								</header>
+			
+								<p>In this part, we implemented self-collision for the cloth so that when it falls or folds in on itself, it won't clip through.
+									For this part, it was too slow to naively check each point against every other point; thus, we used spatial hashmaps to speed
+									up these checks.
+								</p>
+								<p>
+									Our scheme consisted of dividing our space into 3D boxes, grouping all masses within a box into a single hash group, then
+									to actually hash the mass, we floored the mass's coordinates to the nearest box, then hashed that floored position using
+									<a href="https://stackoverflow.com/questions/29566711/how-to-compose-a-key-for-a-hashmap-from-3-integers" target="_blank">this post</a>
+									(we tried others but this one was relatively fast).
+								</p>
+								<p>
+									To actually correct masses, if the mass was less than 2*thickness away from another mass, we added the correction vector to make
+									the mass 2*thickness away to a cumulative vector sum, then averaged these at the end (and divided by simulation_steps to smooth it out more).
+								</p>
+								<p>
+
+									Below we see the correct behavior of the cloth falling in on itself.</p>
+								
+
+								<div class="image main">
+									<img src="images/p4/collision_init.png" alt=""/>
+									<img src="images/p4/collision_mid.png" alt=""/>
+									<img src="images/p4/collision_end.png" alt=""/>
+								</div>
+
+								<p>We can also vary the density and the constant ks to affect the behavior of the cloth as it falls on itself. Let's see how changing the ks value affects the cloth below:</p>
+
+								<div class="image main">
+									<p>Self-collision with the <b>ks value set to 1,000</b>:</p>
+									<img src="images/p4/ks1000_beg.png" alt=""/>
+									<img src="images/p4/ks1000_end.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Self-collision with the <b>ks value set to 10,000</b>:</p>
+									<img src="images/p4/ks10000_beg.png" alt=""/>
+									<img src="images/p4/ks10000_end.png" alt=""/>
+								</div>
+
+								<p>A lower ks value leads to springier cloth. We can see that in the differing collisions above where the cloth with the ks set to 1,000 ends up more spread out and disheveled. The cloth with the 10,000 ks resembles a big sheet of paper and ends up folding up nicely with large curls. Now let's see how changing the density of the cloth affects it:</p>
+
+								<div class="image main">
+									<p>Self-collision with <b>density set 1</b>:</p>
+									<img src="images/p4/density1_beg.png" alt=""/>
+									<img src="images/p4/density1_end.png" alt=""/>
+								</div>
+								<div class="image main">
+									<p>Self-collision with <b>density set 100</b>:</p>
+									<img src="images/p4/density100_beg.png" alt=""/>
+									<img src="images/p4/density100_end.png" alt=""/>
+								</div>
+
+								<p>The denser the cloth, the heavier it is, which affects how it falls into itself.
+									We see that when the cloth has a density of 1, it ends up folding nicely on top of itself.
+									It seems to resemble aluminum foil as it lies relatively straight and folds into curls.
+									When the cloth has a density of 100, however, it doesn't fold up as nicely and lies on the ground, without any curly bends,
+									resembling a folded up blanket.</p>
+
+							</section>
+					</div>
+
+<!--				&lt;!&ndash; Footer &ndash;&gt;-->
+<!--					<footer id="footer">-->
+<!--						<section>-->
+<!--							<form method="post" action="#">-->
+<!--								<div class="fields">-->
+<!--									<div class="field">-->
+<!--										<label for="name">Name</label>-->
+<!--										<input type="text" name="name" id="name" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="email">Email</label>-->
+<!--										<input type="text" name="email" id="email" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="message">Message</label>-->
+<!--										<textarea name="message" id="message" rows="3"></textarea>-->
+<!--									</div>-->
+<!--								</div>-->
+<!--								<ul class="actions">-->
+<!--									<li><input type="submit" value="Send Message" /></li>-->
+<!--								</ul>-->
+<!--							</form>-->
+<!--						</section>-->
+<!--						<section class="split contact">-->
+<!--							<section class="alt">-->
+<!--								<h3>Address</h3>-->
+<!--								<p>1234 Somewhere Road #87257<br />-->
+<!--								Nashville, TN 00000-0000</p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Phone</h3>-->
+<!--								<p><a href="#">(000) 000-0000</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Email</h3>-->
+<!--								<p><a href="#">info@untitled.tld</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Social</h3>-->
+<!--								<ul class="icons alt">-->
+<!--									<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>-->
+<!--								</ul>-->
+<!--							</section>-->
+<!--						</section>-->
+<!--					</footer>-->
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; 2021 Diddly Doofer. All Laughs Reserved.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

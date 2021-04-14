@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Task 3: Object Collisions</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Home</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="p1.html">Part 1</a></li>
+							<li><a href="p2.html">Part 2</a></li>
+							<li class="active"><a href="p3.html">Part 3</a></li>
+							<li><a href="p4.html">Part 4</a></li>
+							<li><a href="p5.html">Part 5</a></li>
+<!--							<li><a href="index.html">This is Massively</a></li>-->
+<!--							<li class="active"><a href="p2.html">Generic Page</a></li>-->
+<!--							<li><a href="elements.html">Elements Reference</a></li>-->
+						</ul>
+<!--						<ul class="icons">-->
+<!--							<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>-->
+<!--						</ul>-->
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 13, 2021</span>
+									<h2>Collisions with Other Objects</h2>
+									<p>Make that cloth dance in the spring! (haha very pun, much fun)</p>
+									<video autoplay loop muted controls playsinline width="75%">
+<!--										<source src="proj_img/Meshedit.webm" type="video/webm">-->
+										<source src="images/p3/sphere.mp4" type="video/mp4">
+										Your browser doesn't support mp4 videos :(
+									</video>
+								</header>
+								<h3>Behind the scenes</h3>
+								<p>We implemented collisions with spheres and planes. In general, to check for collisions we simply
+									looped over all collision objects and checked if any of our point masses collided with it.
+								</p>
+								<p>This was a naive approach, and perhaps we could have made it better, using spatial hashing, for example.
+								</p>
+								<p>
+								For sphere collisions, we used the fact that if a point's distance to the sphere's center was less than its
+								radius, it collided with the sphere (we further optimized this since we could use the radius and distance squared,
+								which avoided two square root operations per check).</p>
+								<p>
+									We then bumped the mass's position to be slightly above the sphere's surface, conserving the direction to the sphere's center.
+								</p>
+
+<!--								<div class="image main">-->
+								<p>For plane collisions, let P be a point on the plane. We checked if the dot product of <em>the vector from P to the mass's position</em> with
+									<em>the plane's normal</em>
+									was not the same sign as the dot product of <em>the vector between the mass's previous position and P </em> with
+									<em>the plane's normal</em>, and if so, the mass had gone through the plane, since the normal was roughly the same direction for one
+									but the opposite direction for the other.
+									</p>
+								<p>
+									We then used the projection a onto b:</p>
+								<img src="images/p3/projection.png" alt="" style="width:7%"/>
+<!--								</div>-->
+
+								<p>	where a was the vector from P to the mass's last position, and b was the normal (this worked since both vectors
+									are relative to the point on the plane).</p>
+								<p>This gave us the vector that, when subtracted from the mass's position, was the collision point. We then bumped this projection
+								to be slightly before the collision point, scaled by friction, then used that to move the mass to just right before the mass actually touched the surface. </p>
+
+								<br>
+								<h3>Pretty pictures</h3>
+								<p>Various ks values (N/m):</p>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+										<tr>
+											<th>Image</th>
+											<th>Comparison</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<img class="table_img" src="images/p3/sphere_500.png" alt="" style="width:100%" />
+												</td>
+												<td>
+													<b>500:</b>
+													Compared to the default cloth of 5000 N/m, the cloth closely hugs the sphere so that the top half of the cloth
+													looks like just like the sphere itself. It also has a lot more folds and wrinkles and resembles a wet paper towel.
+												</td>
+											</tr>
+
+											<tr>
+												<td>
+													<img class="table_img" src="images/p3/sphere_5000.png" alt="" style="width:100%" />
+												</td>
+												<td>
+													<b>5,000:</b>
+													Default setting. Cloth looks stiffer than the 500 N/m cloth.
+												</td>
+											</tr>
+
+											<tr>
+												<td>
+													<img class="table_img" src="images/p3/sphere_50000.png" alt="" style="width:100%"/>
+												</td>
+												<td>
+													<b>50,000:</b>
+													Cloth is very stiff and has less folds and wrinkles than the 5000 N/m cloth.
+													The folds of the cloth also "reach out" more, pointed away from the sphere, since
+													the stiffness prevents it from bending as much.
+												</td>
+											</tr>
+
+										</tbody>
+
+									</table>
+								</div>
+
+
+
+								<div class="image main">
+									<p>Cloth with Campanile texture lying on top of plane:</p>
+									<img src="images/p3/plane.png" alt=""/>
+								</div>
+
+								<div class="image main">
+									<p>Cloth with normals shading lying on top of plane:</p>
+									<img src="images/p3/plane_normal.png" alt=""/>
+								</div>
+
+							</section>
+					</div>
+
+<!--				&lt;!&ndash; Footer &ndash;&gt;-->
+<!--					<footer id="footer">-->
+<!--						<section>-->
+<!--							<form method="post" action="#">-->
+<!--								<div class="fields">-->
+<!--									<div class="field">-->
+<!--										<label for="name">Name</label>-->
+<!--										<input type="text" name="name" id="name" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="email">Email</label>-->
+<!--										<input type="text" name="email" id="email" />-->
+<!--									</div>-->
+<!--									<div class="field">-->
+<!--										<label for="message">Message</label>-->
+<!--										<textarea name="message" id="message" rows="3"></textarea>-->
+<!--									</div>-->
+<!--								</div>-->
+<!--								<ul class="actions">-->
+<!--									<li><input type="submit" value="Send Message" /></li>-->
+<!--								</ul>-->
+<!--							</form>-->
+<!--						</section>-->
+<!--						<section class="split contact">-->
+<!--							<section class="alt">-->
+<!--								<h3>Address</h3>-->
+<!--								<p>1234 Somewhere Road #87257<br />-->
+<!--								Nashville, TN 00000-0000</p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Phone</h3>-->
+<!--								<p><a href="#">(000) 000-0000</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Email</h3>-->
+<!--								<p><a href="#">info@untitled.tld</a></p>-->
+<!--							</section>-->
+<!--							<section>-->
+<!--								<h3>Social</h3>-->
+<!--								<ul class="icons alt">-->
+<!--									<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>-->
+<!--									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>-->
+<!--								</ul>-->
+<!--							</section>-->
+<!--						</section>-->
+<!--					</footer>-->
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; 2021 Diddly Doofer. All Laughs Reserved.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
